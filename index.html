@@ -16,7 +16,22 @@
 <iframe id="app" allow="clipboard-read; clipboard-write" title="物販アプリ"></iframe>
 <script>
   var 元 = 'https://script.google.com/macros/s/AKfycbzEbNtyQSBnD_aeCRQJ4ybh7M1A1AZ0C1VHSX9RL4vCnRAoh0aENSoL09h-1GSwn2o-/exec';
-  document.getElementById('app').src = 元 + (location.search || '?p=menu');
+  var 枠 = document.getElementById('app');
+  枠.src = 元 + (location.search || '?p=menu');
+  // アプリの中のリンクを押したら、この枠の中で次の画面を開く（外に出るとGoogleの青い帯が出るため）
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (!/\.googleusercontent\.com$/.test(e.origin)) return;
+    if (!d || d.物販 !== '移動' || typeof d.url !== 'string') return;
+    if (d.url !== 元 && d.url.indexOf(元 + '?') !== 0) return;
+    枠.src = d.url;
+    try {
+      var q = new URLSearchParams(d.url.split('?')[1] || '');
+      q.delete('k');
+      var s = q.toString();
+      history.replaceState(null, '', location.pathname + (s ? '?' + s : ''));
+    } catch (x) {}
+  });
 </script>
 </body>
 </html>
